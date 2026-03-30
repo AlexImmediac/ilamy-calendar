@@ -111,10 +111,21 @@ export const getPositionedEvents = ({
 			}
 
 			// Create position data for rendering
-			const spanDays = endCol - startCol + 1
+			// Use fractional positions for hour grids so sub-hour times render correctly
+			const fracStart =
+				gridType === 'hour'
+					? Math.max(0, event.start.diff(firstDay, gridType, true))
+					: startCol
+			const fracEnd =
+				gridType === 'hour'
+					? Math.min(dayCount, event.end.diff(firstDay, gridType, true))
+					: startCol + (endCol - startCol + 1)
 			processedEvents.push({
-				left: (startCol / dayCount) * 100,
-				width: (spanDays / dayCount) * 100,
+				left: (fracStart / dayCount) * 100,
+				width: Math.max(
+					((fracEnd - fracStart) / dayCount) * 100,
+					(1 / dayCount) * 100
+				),
 				top:
 					dayNumberHeight +
 					eventSpacing +
@@ -206,8 +217,13 @@ export const getPositionedEvents = ({
 			grid[assignedRow][col] = { taken: true, event }
 
 			// Create position data for rendering
+			// Use fractional left for hour grids so sub-hour times render correctly
+			const fracLeft =
+				gridType === 'hour'
+					? Math.max(0, event.start.diff(firstDay, gridType, true))
+					: col
 			processedEvents.push({
-				left: (col / dayCount) * 100,
+				left: (fracLeft / dayCount) * 100,
 				width: (1 / dayCount) * 100,
 				top:
 					dayNumberHeight +
