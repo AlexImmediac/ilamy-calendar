@@ -222,9 +222,16 @@ export const getPositionedEvents = ({
 				gridType === 'hour'
 					? Math.max(0, event.start.diff(firstDay, gridType, true))
 					: col
+			const fracEnd =
+				gridType === 'hour'
+					? Math.min(dayCount, event.end.diff(firstDay, gridType, true))
+					: col + 1
 			processedEvents.push({
 				left: (fracLeft / dayCount) * 100,
-				width: (1 / dayCount) * 100,
+				width: Math.max(
+					((fracEnd - fracLeft) / dayCount) * 100,
+					(0.25 / dayCount) * 100
+				),
 				top:
 					dayNumberHeight +
 					eventSpacing +
